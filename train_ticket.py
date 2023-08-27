@@ -1,37 +1,45 @@
-# import requests
-from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
 
-driver = webdriver.Safari()
-url = 'https://eticket.railway.gov.bd/booking/train/search/en' + '?fromcity=Rajshahi&tocity=Dhaka&doj=29-Aug-2023&class=SNIGDHA'
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+driver = webdriver.Chrome(options=chrome_options)
+url = 'https://eticket.railway.gov.bd/booking/train/search/en?fromcity=Rajshahi&tocity=Dhaka&doj=30-Aug-2023&class=SNIGDHA'
 
-# payload = {'fromcity': 'Rajshahi', 'tocity': 'Dhaka', 'doj': '14-Jul-2023', 'class': 'SNIGDHA'}
-# response = requests.get('https://eticket.railway.gov.bd/booking/train/search/en', params = payload)
 driver.get(url)
 soup = BeautifulSoup(driver.page_source, 'lxml')
 driver.quit()
-# print(soup.prettify())
+
 
 train_div = soup.find_all('div', class_='row single-trip-wrapper list_rows')
+
 # particular_train_div = None
-dhumketu_div, silkcity_div, padma_div = None, None, None
+
+# dhumketu_div, silkcity_div, padma_div = None, None, None
+
 
 for div in train_div:
-    if 'DHUMKETU EXPRESS' in div.text:
-        dhumketu_div = div
-    elif 'SILKCITY EXPRESS' in div.text:
+    if 'SILKCITY EXPRESS' in div.text:
         silkcity_div = div
-    elif'PADMA EXPRESS' in div.text:
-        padma_div = div
-# else:
-#     print('NOT FOUND')
+        break
 
-for div in (dhumketu_div, silkcity_div, padma_div):
-        for subdiv in div.find_all('div'):
-            if 'SNIGDHA' in subdiv.text:
-                print('FOUND')
-                val = subdiv.find('div', class_='available-text open-for-all').text
-                print(val)
-                break
+else:
+    raise Exception('NO TRAIN FOUND')
+
+silkcity_seat_category = silkcity_div.find_all('div', class_='single-seat-class seat-available-wrap  seat-available-wrap')
+
+if silkcity_seat_category:
+    print(silkcity_seat_category.prettify())
+else:
+    raise Exception('Seat Class div not found')
+
+for div in silkcity_seat_category:
+    if 'SNIGDHA' in div.text:
+        print('FOUND')
+        print(div.prettify())
+        val = div.find('span', class_='all-seats').text
+        print(val)
+        break
 else:
     print('NOT FOUND')
