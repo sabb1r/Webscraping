@@ -1,45 +1,33 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(options=chrome_options)
-url = 'https://eticket.railway.gov.bd/booking/train/search/en?fromcity=Rajshahi&tocity=Dhaka&doj=30-Aug-2023&class=SNIGDHA'
-
-driver.get(url)
-soup = BeautifulSoup(driver.page_source, 'lxml')
-driver.quit()
+with open('response.html', 'r') as f:
+    soup = BeautifulSoup(f, 'html5lib')
 
 
-train_div = soup.find_all('div', class_='row single-trip-wrapper list_rows')
+def has_seat_type(tag):
+    if tag.has_attr('data-seat-type'):
+        if 'AC_S' in tag['data-seat-type']:
+            return True
+        else:
+            return False
+    else:
+        return False
 
-# particular_train_div = None
 
-# dhumketu_div, silkcity_div, padma_div = None, None, None
+train_div = soup.find('h2', string='BANALATA EXPRESS (792)').parent.parent
 
+seat_category_div = train_div.find(has_seat_type)
 
-for div in train_div:
-    if 'SILKCITY EXPRESS' in div.text:
-        silkcity_div = div
-        break
+# seat_category_div = train_div.find('div', class_='seat-classes-row d-flex').find('span', string='SNIGHDA').parent.parent
+# print(seat_category_div.prettify())
+print('Available seats = ', seat_category_div.find('span', class_='all-seats').string)
+# seat_tag = seat_type_div.find('span', class_='all-seats')
+# print(seat_tag.string)
+# print(train_div.children)
 
-else:
-    raise Exception('NO TRAIN FOUND')
-
-silkcity_seat_category = silkcity_div.find_all('div', class_='single-seat-class seat-available-wrap  seat-available-wrap')
-
-if silkcity_seat_category:
-    print(silkcity_seat_category.prettify())
-else:
-    raise Exception('Seat Class div not found')
-
-for div in silkcity_seat_category:
-    if 'SNIGDHA' in div.text:
-        print('FOUND')
-        print(div.prettify())
-        val = div.find('span', class_='all-seats').text
-        print(val)
-        break
-else:
-    print('NOT FOUND')
+# for child in train_div.descendants:
+#     if child.string == 'SNIGDHA':
+#         available_seat_tag = child.parent.sibling
+#         break
+# print(available_seat_tag.prettify())
+# print(train_div.prettify())
