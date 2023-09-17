@@ -1,9 +1,9 @@
 from selenium import webdriver
-from selenium.webdriver.safari.options import Options
+from selenium.webdriver.chrome.options import Options
 
-safari_options = Options()
-safari_options.add_argument("--headless")
-driver = webdriver.Safari(options=safari_options)
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+driver = webdriver.Safari(options=chrome_options)
 url = 'https://eticket.railway.gov.bd/booking/train/search/en?fromcity=Rajshahi&tocity=Dhaka&doj=13-Sep-2023&class=SNIGDHA'
 
 driver.get(url)
