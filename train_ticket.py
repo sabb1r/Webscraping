@@ -28,17 +28,17 @@ else:
     else:
         particular_train = None
 
-if particular_train:
-    if not train_div[particular_train].get(coach):
-        print('{} coach is not available for {} train'.format(coach, particular_train))
-    elif train_div[particular_train].get(coach) >= no_ticket:
-        print('TICKET AVAILABLE')
+    if particular_train:
+        if not train_div[particular_train].get(coach):
+            print('{} coach is not available for {} train'.format(coach, particular_train))
+        elif train_div[particular_train].get(coach) >= no_ticket:
+            print('TICKET AVAILABLE')
+        else:
+            print('NOT AVAILABLE')
     else:
-        print('NOT AVAILABLE')
-else:
-    for train in train_div.keys():
-        if not train_div[train].get(coach):
-            continue
-        elif train_div[train].get(coach) >= no_ticket:
-            print('You can purchase {} ticket/s of {} coach from {} train'.format(no_ticket, coach, train))
+        for train in train_div.keys():
+            if not train_div[train].get(coach):
+                continue
+            elif train_div[train].get(coach) >= no_ticket:
+                print('You can purchase {} ticket/s of {} coach from {} train'.format(no_ticket, coach, train))
 
