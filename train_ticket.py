@@ -1,10 +1,17 @@
 # import datetime
 from bs4 import BeautifulSoup
+from get_the_html import coach, no_ticket
 
 with open('response', 'r', encoding='utf-8') as f:
     soup = BeautifulSoup(f, 'html5lib')
 
-train_div = {val.find('h2').string: val for val in soup.find_all('div', class_='row single-trip-wrapper list_rows')}
+
+def has_seat_type_tag(tag):
+    return tag.has_attr('data-seat-type')
+
+
+train_div = {val.find('h2').string: {tag.find('span', class_='seat-class-name').string: int(tag.find('span', class_='all-seats').string) for tag in val.find_all(has_seat_type_tag)} for val in
+             soup.find_all('div', class_='row single-trip-wrapper list_rows')}
 
 
 if not train_div:
@@ -13,7 +20,7 @@ else:
     print('The following trains are available in that day:- ')
     train_list = list(train_div.keys())
     for serial, train in enumerate(train_list):
-        print('{}| {}'.format(serial+1, train))
+        print('{}| {}'.format(serial + 1, train))
 
     choice = input('Do you want to board any specific train? <Type "Y" for YES and "N" for "NO> ')
     if choice == 'Y':
@@ -21,22 +28,17 @@ else:
     else:
         particular_train = None
 
-    print(particular_train)
+if particular_train:
+    if not train_div[particular_train].get(coach):
+        print('{} coach is not available for {} train'.format(coach, particular_train))
+    elif train_div[particular_train].get(coach) >= no_ticket:
+        print('TICKET AVAILABLE')
+    else:
+        print('NOT AVAILABLE')
+else:
+    for train in train_div.keys():
+        if not train_div[train].get(coach):
+            continue
+        elif train_div[train].get(coach) >= no_ticket:
+            print('You can purchase {} ticket/s of {} coach from {} train'.format(no_ticket, coach, train))
 
-
-
-# def has_seat_type(tag):
-#     if tag.has_attr('data-seat-type'):
-#         if 'AC_S' in tag['data-seat-type']:
-#             return True
-#         else:
-#             return False
-#     else:
-#         return False
-#
-#
-# train_div = soup.find('h2', string='BANALATA EXPRESS (792)').parent.parent
-#
-# seat_category_div = train_div.find(has_seat_type)
-#
-# print('Available seats = ', seat_category_div.find('span', class_='all-seats').string)
