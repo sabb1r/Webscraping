@@ -1,41 +1,32 @@
 class Train:
-    def __init__(self, name, code, off_day, stations, exclude_station=None):
+    def __init__(self, name, code, off_day, stations, exclude_stations=None):
         self.name = name
-        self.down_code = code
-        self.down_stations = stations
+        self.code = code
+        self.odd_stations = stations
         self.off_day = off_day
+        self.exclude_stations = exclude_stations
 
-        self.up_code = code + 1
-        if not exclude_station:
-            self.up_stations = stations[::-1]
+        if not exclude_stations:
+            self.even_stations = stations[::-1]
         else:
-            self.up_stations = [station for station in stations if station not in exclude_station]
+            self.even_stations = [station for station in stations[::-1] if station not in exclude_stations]
 
-    # def does_touch(self, station, direction):
-    #     if direction not in ['up', 'down']:
-    #         raise BadInput
-    #     if (direction == 'up' and station in self.up_stations) or (
-    #             direction == 'down' and station in self.down_stations):
-    #         return True
-    #     else:
-    #         return False
-
-    def previous_stations(self, station, direction):
-        if direction not in ['up', 'down']:
-            raise BadInput
-
-        # if self.does_touch(station, direction):
-        #     return self.down_stations[0:self.down_stations.index(station)] if direction == 'down' else self.up_stations[
-        #                                                                                                0:self.up_stations.index(
-        #                                                                                                    station)]
-        # else:
-        #     raise WrongStation
+    def previous_stations(self, code, station):
+        return self.odd_stations[:self.odd_stations.index(station)] if code%2 == 1 else self.even_stations[:self.even_stations.index(station)]
 
 
-class BadInput:
-    print('Input does not match with preferred format')
+banalata_791_stations = ['Dhaka', 'Biman_Bandar', 'Rajshahi', 'Chapai Nawabganj']
+banalata_exclude_stations = ['Biman_Bandar']
+silkcity_753_stations = ['Dhaka', 'Biman_Bandar', 'Joydebpur', 'Mirzapur', 'Tangail', 'BBSetu_E', 'SH M Monsur Ali', 'Jamtail', 'Ullapara', 'Boral_Bridge', 'Chatmohar', 'Ishwardi Bypass', 'Abdulpur', 'Rajshahi']
+silkcity_exclude_stations = ['Biman_Bandar']
+padma_759_stations = ['Dhaka', 'Biman_Bandar', 'Joydebpur', 'Tangail', 'BBSetu_E', 'SH M Monsur Ali', 'Ullapara', 'Boral_Bridge', 'Chatmohar', 'Ishwardi Bypass', 'Abdulpur', 'Sardah_Road', 'Rajshahi']
+padma_exclude_stations = ['Biman_Bandar']
+dhumketu_769_stations = ['Dhaka', 'Biman_Bandar', 'Joydebpur', 'Tangail', 'BBSetu_E', 'SH M Monsur Ali', 'Jamtail', 'Ullapara', 'Boral_Bridge', 'Chatmohar', 'Ishwardi Bypass', 'Abdulpur', 'Arani', 'Rajshahi']
+dhumketu_exclude_stations = ['Biman_Bandar', 'Tangail', 'Jamtail', 'Ullapara', 'Ishwardi Bypass']
 
 
-class WrongStation:
-    print('The train does not touch the station')
+Banalata = Train('BANALATA EXPRESS', 791, 'Friday', banalata_791_stations, banalata_exclude_stations)
+Silkcity = Train('SILKCITY EXPRESS', 753, 'Sunday', silkcity_753_stations, silkcity_exclude_stations)
+Padma = Train('PADMA EXPRESS', 759, 'Tuesday', padma_759_stations, padma_exclude_stations)
+Dhumketu = Train('DHUMKETU EXPRESS', 769, 'Wednesday', dhumketu_769_stations, dhumketu_exclude_stations)
 
