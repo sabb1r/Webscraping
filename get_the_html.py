@@ -49,5 +49,5 @@ coach = input('Enter the coach type: ')
 no_ticket = int(input('Enter how many tickets you want to purchase: '))
 
 url = get_url(from_city, to_city, doj, coach)
-print(url)
+# print(url)
 get_html(url)
