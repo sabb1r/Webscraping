@@ -61,11 +61,14 @@ no_ticket = int(input('Enter how many tickets you want to purchase: '))
 url = None
 counter = 0
 prev_station = None
+flag = 0
 
-while True:
-    get_html()
-    # print(url)
+
+def get_train_info():
+    global counter
     counter += 1
+
+    get_html()
 
     with open('response', 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'html5lib')
@@ -73,48 +76,59 @@ while True:
     train_div = {val.find('h2').string: {
         tag.find('span', class_='seat-class-name').string: int(tag.find('span', class_='all-seats').string) for tag in
         val.find_all(has_seat_type_tag)} for val in
-                 soup.find_all('div', class_='row single-trip-wrapper list_rows')}
+        soup.find_all('div', class_='row single-trip-wrapper list_rows')}
+
+    return train_div
 
     # print(train_div)
-    if not train_div:
-        print('Sorry no train is available')
-        break
 
-    if counter == 1:
-        print('The following trains are available in that day:- ')
-        train_list = list(train_div.keys())
-        for serial, train in enumerate(train_list):
-            print('{}| {}'.format(serial + 1, train))
 
-        choice = input('Do you want to board any specific train? <Type "Y" for YES and "N" for "NO> ')
-        if choice == 'Y':
-            particular_train = train_list[int(input('Enter the train: <Type the train number serial in the display> ')) - 1]
-        else:
-            particular_train = None
+train_info = get_train_info()
 
-    if particular_train:
-        if coach not in train_div[particular_train]:
-            print('{} coach is not available for {} train'.format(coach, particular_train))
-            break
-        if train_div[particular_train].get(coach) >= no_ticket:
-            print('TICKET AVAILABLE')
-            print('Click the flowing link to purchase: ')
-            print(url)
-            break
-        else:
-            train_name, *dump, code = particular_train.split(' ')
-            train_name_for_class = train_name[0] + train_name[1:].lower()
-            code = int(''.join([digit for digit in code if digit.isnumeric()]))
-            train_class = eval(train_name_for_class)
-            prev_stations = train_class.previous_stations(code, from_city)
+if not train_info:
+    print('Sorry no train is available')
 
-            print(prev_stations)
+print('The following trains are available in that day:- ')
+train_list = list(train_info.keys())
+for serial, train in enumerate(train_list):
+    print('{}| {}'.format(serial + 1, train))
 
-            for station in prev_stations[::-1]:
-                from_city = station
+choice = input('Do you want to board any specific train? <Type "Y" for YES and "N" for "NO> ')
+if choice == 'Y':
+    particular_train = train_list[int(input('Enter the train: <Type the train number serial in the display> ')) - 1]
+else:
+    particular_train = None
+
+if particular_train:
+    if coach not in train_info[particular_train]:
+        print('{} coach is not available for {} train'.format(coach, particular_train))
+        # break
+    elif train_info[particular_train].get(coach) >= no_ticket:
+        print('TICKET AVAILABLE')
+        print('Click the flowing link to purchase: ')
+        print(url)
+        flag = 1
+        # break
+    else:
+        train_name, *dump, code = particular_train.split(' ')
+        train_name_for_class = train_name[0] + train_name[1:].lower()
+        code = int(''.join([digit for digit in code if digit.isnumeric()]))
+        train_class = eval(train_name_for_class)
+        prev_stations = train_class.previous_stations(code, from_city)
+
+        for station in prev_stations[::-1]:
+            from_city = station
+            train_info = get_train_info()
+            if train_info[particular_train].get(coach) >= no_ticket:
+                print('TICKET AVAILABLE')
+                print('Click the following link to purchase: ')
+                print(url)
+                flag = 1
+            else:
                 continue
+if flag == 0:
     print('Sorry No Seat found!')
-    break
+
     # else:
     #     pass
     #     # for train in train_div.keys():
