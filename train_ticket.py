@@ -2,7 +2,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from train import Banalata, Silkcity, Padma, Dhumketu, Ekota
+import bdtrain
 
 month_name = {
     '01': 'Jan',
@@ -110,22 +110,32 @@ if particular_train:
         flag = 1
         # break
     else:
-        train_name, *dump, code = particular_train.split(' ')
-        train_name_for_class = train_name[0] + train_name[1:].lower()
+        train_name, code = particular_train.split('(')
+        train_name = train_name.strip()
         code = int(''.join([digit for digit in code if digit.isnumeric()]))
-        train_class = eval(train_name_for_class)
-        prev_stations = train_class.previous_stations(code, from_city)
+        for trn in bdtrain.trains:
+            if train_name == trn.name:
+                train_class = trn
 
-        for station in prev_stations[::-1]:
-            from_city = station
+        if code % 2 == 1:
+            stn = to_city
+            remaining_stations = train_class.next_stations(code, stn)
+        else:
+            stn = from_city
+            remaining_stations = train_class.previous_stations(code, stn)
+
+        for station in remaining_stations:
+            if code % 2 == 1:
+                from_city = station
             train_info = get_train_info()
+            print(train_info)
             if train_info[particular_train].get(coach) >= no_ticket:
+                print('-' * 50)
                 print('TICKET AVAILABLE')
                 print('Click the following link to purchase: ')
                 print(url)
                 flag = 1
-            else:
-                continue
+                break
 if flag == 0:
     print('Sorry No Seat found!')
 
