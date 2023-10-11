@@ -75,3 +75,7 @@ Chilahati = Train('CHILAHATI EXPRESS', 805, 'Saturday', chilahati_805_stations, 
 
 
 trains = [Banalata, Silkcity, Padma, Dhumketu, Ekota, Drutojan, Chilahati]
+
+import pickle
+with open('train_database.pkl', 'wb') as f:
+    pickle.dump(trains, f)
